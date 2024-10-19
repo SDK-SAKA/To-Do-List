@@ -396,22 +396,9 @@ Animating title
 
 @import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600&family=Londrina+Outline&display=swap');
 
-@keyframes bounce {
-  0%,
-  20%,
-  50%,
-  80%,
-  100% {
-    transform: translateY(0);
-  }
-
-  40% {
-    transform: translateY(-10px);
-  }
-
-  60% {
-    transform: translateY(-5px);
-  }
+@keyframes gentleBounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-5px); }
 }
 
 @media (max-width: 947px) {
@@ -465,5 +452,57 @@ Animating title
 
   .footer p {
     font-size: 10px;
+  }
+}
+.export-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 20px;
+  position: fixed;
+  bottom: 80px;
+  left: 0;
+  right: 0;
+}
+
+.export-button {
+  background-color: #4CAF50;
+  border: none;
+  color: white;
+  padding: 10px 20px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
+  margin: 4px 2px;
+  cursor: pointer;
+  border-radius: 5px;
+  transition: background-color 0.3s;
+}
+
+.export-button:hover {
+  background-color: #45a049;
+}
+
+#exportPDF {
+  background-color: #f44336;
+}
+
+#exportPDF:hover {
+  background-color: #d32f2f;
+}
+
+#exportCSV {
+  background-color: #2196F3;
+}
+
+#exportCSV:hover {
+  background-color: #1976D2;
+}
+
+@media (max-width: 600px) {
+  .export-buttons {
+    flex-direction: column;
+    align-items: center;
   }
 }

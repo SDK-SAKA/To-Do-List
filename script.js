@@ -271,6 +271,38 @@ function updateTodoList() {
       editTodo(index);
     });
   });
+  function updateTodoList() {
+  
+    const taskListElement = document.querySelector('.task-list');
+    let tasksHtml = '';
+  
+    for (let i = 0; i < filteredTodos.length; i++) {
+      const todo = filteredTodos[i];
+      tasksHtml += `
+        <div class="task ${todo.completed ? 'completed' : ''}">
+          <div class="task-info">
+            <input type="checkbox" class="js-complete-checkbox" data-index="${i}" ${todo.completed ? 'checked' : ''} onchange="toggleComplete(${todoList.indexOf(todo)})">
+            <span class="task-title">${todo.name}</span>
+            <span class="task-category">${todo.category}</span>
+            <span class="task-priority priority-${todo.priority}">${todo.priority}</span>
+            <span class="task-date"><i class="fas fa-calendar-alt"></i> ${todo.date}</span>
+            <span class="task-time"><i class="fas fa-clock"></i> ${todo.time}</span>
+          </div>
+          <div class="task-actions">
+            <button class="js-edit-button" data-index="${i}">
+              <i class="fas fa-pen"></i> Edit
+            </button>
+            <button class="js-delete-button" data-index="${i}">
+              <i class="fas fa-trash"></i> Delete
+            </button>
+          </div>
+        </div>`;
+    }
+  
+    taskListElement.innerHTML = tasksHtml;
+  
+    // ... rest of the function remains the same ...
+  }
 }
 
 function setDefaultDateTime() {
@@ -354,4 +386,92 @@ document.addEventListener('DOMContentLoaded', () => {
   document
     .querySelector('.js-filter-input')
     .addEventListener('change', filterTodos);
+});
+
+function exportToPDF() {
+  try {
+    console.log("Starting PDF export");
+    if (typeof jsPDF === 'undefined') {
+      console.error("jsPDF is not defined. Make sure the library is loaded correctly.");
+      return;
+    }
+
+    const doc = new jsPDF();
+    let yOffset = 20;
+
+    console.log("Creating PDF document");
+
+    doc.setFontSize(20);
+    doc.text('Todo List', 105, yOffset, { align: 'center' });
+    yOffset += 10;
+
+    doc.setFontSize(12);
+    console.log("Todo list length:", todoList.length);
+    todoList.forEach((task, index) => {
+      if (yOffset > 280) {
+        doc.addPage();
+        yOffset = 10;
+      }
+      console.log(`Adding task ${index + 1} to PDF`);
+      doc.setFont(undefined, 'bold');
+      doc.text(`Task ${index + 1}: ${task.name}`, 10, yOffset);
+      yOffset += 7;
+      doc.setFont(undefined, 'normal');
+      doc.text(`Date: ${task.date}  Time: ${task.time}`, 15, yOffset);
+      yOffset += 5;
+      doc.text(`Category: ${task.category}  Priority: ${task.priority}`, 15, yOffset);
+      yOffset += 5;
+      doc.text(`Status: ${task.completed ? 'Completed' : 'Pending'}`, 15, yOffset);
+      yOffset += 10;
+    });
+
+    console.log("Saving PDF");
+    doc.save('todo-list.pdf');
+    console.log("PDF export completed");
+  } catch (error) {
+    console.error("Error in PDF export:", error);
+  }
+}
+
+function exportToCSV() {
+  let csvContent = "data:text/csv;charset=utf-8,";
+  csvContent += "Task,Date,Time,Category,Priority,Status\n";
+  
+  todoList.forEach(task => {
+    const status = task.completed ? 'Completed' : 'Pending';
+    const row = [
+      task.name,
+      task.date,
+      task.time,
+      task.category,
+      task.priority,
+      status
+    ].map(item => `"${item}"`).join(',');
+    csvContent += row + "\n";
+  });
+
+  const encodedUri = encodeURI(csvContent);
+  const link = document.createElement("a");
+  link.setAttribute("href", encodedUri);
+  link.setAttribute("download", "todo-list.csv");
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+}
+document.addEventListener('DOMContentLoaded', () => {
+  const addButton = document.querySelector('.js-add-button');
+  addButton.addEventListener('click', addTodo);
+
+  const exportPdfButton = document.getElementById('exportPDF');
+  if (exportPdfButton) {
+    exportPdfButton.addEventListener('click', exportToPDF);
+    console.log("PDF export button listener added");
+  } else {
+    console.error("Export PDF button not found");
+  }
+
+  const exportCsvButton = document.getElementById('exportCSV');
+  exportCsvButton.addEventListener('click', exportToCSV);
+
+  updateTodoList();
 });
